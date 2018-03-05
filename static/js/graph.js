@@ -25,6 +25,8 @@ function makeGraphs(error, salaryData) {
     makeScatterPlot(ndx, "yrs_service", "#salary_to_years_of_service", "Years Service")
     makeScatterPlot(ndx, "yrs_since_phd", "#salary_to_years_since_phd", "Years Since Phd")
 
+
+    averageNumberDisplay(ndx, "#nd")
     dc.renderAll();
     
 }
@@ -240,5 +242,40 @@ function makeScatterPlot(ndx, yearsSince, elem, xLabel) {
         .group(experienceSalaryGroup)
         .margins({top: 10, right: 50, bottom: 75, left: 75});
         
+}
+
+function averageNumberDisplay(ndx, element){
+    let all_records = ndx.groupAll();
+    
+    let average_salary = all_records.reduce(
+        function (p, v) {
+            p.count++;
+            p.total += v.salary;
+            p.average = p.total / p.count;
+            return p;
+        },
+        function (p, v) {
+            p.count--;
+            if(p.count > 0){
+                p.total -= v.salary;
+                p.average = p.total / p.count; 
+            }else{
+                p.total = 0;
+                p.average = 0
+            }
+            return p;
+        },
+        function (){
+            return {count:0, total:0, average:0}
+        });
+        
+
+    
+    dc.numberDisplay(element)
+        
+        .valueAccessor(function (d) {
+            return d.average;
+        })
+        .group(average_salary);
 }
 
